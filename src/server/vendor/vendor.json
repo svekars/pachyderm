@@ -1363,6 +1363,12 @@
 			"revisionTime": "2016-04-24T05:23:52Z"
 		},
 		{
+			"checksumSHA1": "qapCbdiVrF33pC3d9EvgJnH73Ug=",
+			"path": "github.com/segmentio/kafka-go",
+			"revision": "0b3aacc527812d4040e51211146a43545e82d670",
+			"revisionTime": "2018-11-27T16:12:09Z"
+		},
+		{
 			"checksumSHA1": "xjfWsgou7dLH4IoAZh6NdrVVkNk=",
 			"path": "github.com/sergi/go-diff/diffmatchpatch",
 			"revision": "832b50675c70d6d59e5cf2d939a5cf0045f1afe5",
