@@ -12,7 +12,7 @@ import (
 
 func TestPortForwardError(t *testing.T) {
 	os.Setenv("PACHD_ADDRESS", "localhost:30650")
-	c := tu.Cmd("pachctl", "version", "--timeout=1ns", "--no-port-forwarding")
+	c := tu.Cmd("pachctl", "version", "--timeout=1ns")
 	var errMsg bytes.Buffer
 	c.Stdout = ioutil.Discard
 	c.Stderr = &errMsg
@@ -23,7 +23,7 @@ func TestPortForwardError(t *testing.T) {
 
 func TestNoPortError(t *testing.T) {
 	os.Setenv("PACHD_ADDRESS", "127.127.127.0")
-	c := tu.Cmd("pachctl", "version", "--timeout=1ns", "--no-port-forwarding")
+	c := tu.Cmd("pachctl", "version", "--timeout=1ns")
 	var errMsg bytes.Buffer
 	c.Stdout = ioutil.Discard
 	c.Stderr = &errMsg
@@ -34,7 +34,7 @@ func TestNoPortError(t *testing.T) {
 
 func TestWeirdPortError(t *testing.T) {
 	os.Setenv("PACHD_ADDRESS", "localhost:30560")
-	c := tu.Cmd("pachctl", "version", "--timeout=1ns", "--no-port-forwarding")
+	c := tu.Cmd("pachctl", "version", "--timeout=1ns")
 	var errMsg bytes.Buffer
 	c.Stdout = ioutil.Discard
 	c.Stderr = &errMsg
