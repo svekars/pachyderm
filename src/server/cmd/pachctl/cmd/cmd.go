@@ -148,7 +148,6 @@ func (l *logWriter) Write(p []byte) (int, error) {
 func PachctlCmd() (*cobra.Command, error) {
 	var verbose bool
 	var noMetrics bool
-	var noPortForwarding bool
 	raw := false
 	rawFlag := func(cmd *cobra.Command) {
 		cmd.Flags().BoolVar(&raw, "raw", false, "disable pretty printing, print raw json")
@@ -183,36 +182,35 @@ Environment variables:
 	}
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Output verbose logs")
 	rootCmd.PersistentFlags().BoolVarP(&noMetrics, "no-metrics", "", false, "Don't report user metrics for this command")
-	rootCmd.PersistentFlags().BoolVarP(&noPortForwarding, "no-port-forwarding", "", false, "Disable implicit port forwarding")
 
-	pfsCmds := pfscmds.Cmds(&noMetrics, &noPortForwarding)
+	pfsCmds := pfscmds.Cmds(&noMetrics)
 	for _, cmd := range pfsCmds {
 		rootCmd.AddCommand(cmd)
 	}
-	ppsCmds, err := ppscmds.Cmds(&noMetrics, &noPortForwarding)
+	ppsCmds, err := ppscmds.Cmds(&noMetrics)
 	if err != nil {
 		return nil, err
 	}
 	for _, cmd := range ppsCmds {
 		rootCmd.AddCommand(cmd)
 	}
-	deployCmds := deploycmds.Cmds(&noMetrics, &noPortForwarding)
+	deployCmds := deploycmds.Cmds(&noMetrics)
 	for _, cmd := range deployCmds {
 		rootCmd.AddCommand(cmd)
 	}
-	authCmds := authcmds.Cmds(&noMetrics, &noPortForwarding)
+	authCmds := authcmds.Cmds(&noMetrics)
 	for _, cmd := range authCmds {
 		rootCmd.AddCommand(cmd)
 	}
-	enterpriseCmds := enterprisecmds.Cmds(&noMetrics, &noPortForwarding)
+	enterpriseCmds := enterprisecmds.Cmds(&noMetrics)
 	for _, cmd := range enterpriseCmds {
 		rootCmd.AddCommand(cmd)
 	}
-	adminCmds := admincmds.Cmds(&noMetrics, &noPortForwarding)
+	adminCmds := admincmds.Cmds(&noMetrics)
 	for _, cmd := range adminCmds {
 		rootCmd.AddCommand(cmd)
 	}
-	debugCmds := debugcmds.Cmds(&noMetrics, &noPortForwarding)
+	debugCmds := debugcmds.Cmds(&noMetrics)
 	for _, cmd := range debugCmds {
 		rootCmd.AddCommand(cmd)
 	}
@@ -267,9 +265,9 @@ Environment variables:
 				if err != nil {
 					return fmt.Errorf("could not parse timeout duration %q: %v", timeout, err)
 				}
-				pachClient, err = client.NewOnUserMachine(false, !noPortForwarding, "user", client.WithDialTimeout(timeout))
+				pachClient, err = client.NewOnUserMachine(false, "user", client.WithDialTimeout(timeout))
 			} else {
-				pachClient, err = client.NewOnUserMachine(false, !noPortForwarding, "user")
+				pachClient, err = client.NewOnUserMachine(false, "user")
 			}
 			if err != nil {
 				return err
@@ -317,7 +315,7 @@ Environment variables:
 		Long: `Delete all repos, commits, files, pipelines and jobs.
 This resets the cluster to its initial state.`,
 		Run: cmdutil.RunFixedArgs(0, func(args []string) error {
-			client, err := client.NewOnUserMachine(!noMetrics, !noPortForwarding, "user")
+			client, err := client.NewOnUserMachine(!noMetrics, "user")
 			if err != nil {
 				return err
 			}
@@ -369,7 +367,11 @@ This resets the cluster to its initial state.`,
 		Short: "Forward a port on the local machine to pachd. This command blocks.",
 		Long:  "Forward a port on the local machine to pachd. This command blocks.",
 		Run: cmdutil.RunFixedArgs(0, func(args []string) error {
-			fw, err := client.NewPortForwarder(namespace, ioutil.Discard, os.Stderr)
+			config, err := cmdutil.KubeConfig()
+			if err != nil {
+				return err
+			}
+			fw, err := client.NewPortForwarder(config, namespace, ioutil.Discard, os.Stderr)
 			if err != nil {
 				return err
 			}

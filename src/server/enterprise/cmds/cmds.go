@@ -32,7 +32,7 @@ func parseISO8601(s string) (time.Time, error) {
 // Pachyderm within a Pachyderm cluster. All repos will go from
 // publicly-accessible to accessible only by the owner, who can subsequently add
 // users
-func ActivateCmd(noMetrics, noPortForwarding *bool) *cobra.Command {
+func ActivateCmd(noMetrics *bool) *cobra.Command {
 	var expires string
 	activate := &cobra.Command{
 		Use: "activate activation-code",
@@ -41,7 +41,7 @@ func ActivateCmd(noMetrics, noPortForwarding *bool) *cobra.Command {
 		Long: "Activate the enterprise features of Pachyderm with an activation " +
 			"code",
 		Run: cmdutil.RunFixedArgs(1, func(args []string) error {
-			c, err := client.NewOnUserMachine(!*noMetrics, !*noPortForwarding, "user")
+			c, err := client.NewOnUserMachine(!*noMetrics, "user")
 			if err != nil {
 				return fmt.Errorf("could not connect: %s", err.Error())
 			}
@@ -84,7 +84,7 @@ func ActivateCmd(noMetrics, noPortForwarding *bool) *cobra.Command {
 // Pachyderm within a Pachyderm cluster. All repos will go from
 // publicly-accessible to accessible only by the owner, who can subsequently add
 // users
-func GetStateCmd(noMetrics, noPortForwarding *bool) *cobra.Command {
+func GetStateCmd(noMetrics *bool) *cobra.Command {
 	getState := &cobra.Command{
 		Use: "get-state",
 		Short: "Check whether the Pachyderm cluster has enterprise features " +
@@ -92,7 +92,7 @@ func GetStateCmd(noMetrics, noPortForwarding *bool) *cobra.Command {
 		Long: "Check whether the Pachyderm cluster has enterprise features " +
 			"activated",
 		Run: cmdutil.Run(func(args []string) error {
-			c, err := client.NewOnUserMachine(!*noMetrics, !*noPortForwarding, "user")
+			c, err := client.NewOnUserMachine(!*noMetrics, "user")
 			if err != nil {
 				return fmt.Errorf("could not connect: %s", err.Error())
 			}
@@ -119,13 +119,13 @@ func GetStateCmd(noMetrics, noPortForwarding *bool) *cobra.Command {
 }
 
 // Cmds returns pachctl commands related to Pachyderm Enterprise
-func Cmds(noMetrics, noPortForwarding *bool) []*cobra.Command {
+func Cmds(noMetrics *bool) []*cobra.Command {
 	enterprise := &cobra.Command{
 		Use:   "enterprise",
 		Short: "Enterprise commands enable Pachyderm Enterprise features",
 		Long:  "Enterprise commands enable Pachyderm Enterprise features",
 	}
-	enterprise.AddCommand(ActivateCmd(noMetrics, noPortForwarding))
-	enterprise.AddCommand(GetStateCmd(noMetrics, noPortForwarding))
+	enterprise.AddCommand(ActivateCmd(noMetrics))
+	enterprise.AddCommand(GetStateCmd(noMetrics))
 	return []*cobra.Command{enterprise}
 }

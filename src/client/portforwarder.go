@@ -15,7 +15,6 @@ import (
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -43,17 +42,9 @@ type PortForwarder struct {
 }
 
 // NewPortForwarder creates a new port forwarder
-func NewPortForwarder(namespace string, stdout, stderr io.Writer) (*PortForwarder, error) {
+func NewPortForwarder(config *rest.Config, namespace string, stdout, stderr io.Writer) (*PortForwarder, error) {
 	if namespace == "" {
 		namespace = "default"
-	}
-
-	rules := clientcmd.NewDefaultClientConfigLoadingRules()
-	overrides := &clientcmd.ConfigOverrides{}
-	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, overrides)
-	config, err := kubeConfig.ClientConfig()
-	if err != nil {
-		return nil, err
 	}
 
 	client, err := kubernetes.NewForConfig(config)
