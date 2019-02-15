@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -33,6 +34,7 @@ import (
 	"github.com/pachyderm/pachyderm/src/client/pkg/grpcutil"
 	"github.com/pachyderm/pachyderm/src/client/pps"
 	"github.com/pachyderm/pachyderm/src/client/version/versionpb"
+	"github.com/pachyderm/pachyderm/src/server/pkg/cmdutil"
 )
 
 const (
@@ -331,10 +333,24 @@ func NewOnUserMachine(reportMetrics bool, prefix string, options ...Option) (*AP
 	if err != nil {
 		return nil, err
 	}
-	// TODO(ys)
+	// if the addr was not explicitly set, automatically try to determine it
+	// via the default k8s config
 	if addr == "" {
-		addr = fmt.Sprintf("0.0.0.0:%s", DefaultPachdNodePort)
+		config, err := cmdutil.KubeConfig()
+		if err != nil {
+			log.Warningf("error reading the default kube config: %s", err)
+		} else {
+			u, err := url.Parse(config.Host)
+			if err != nil {
+				log.Warningf("error parsing the kubernetes host url '%s': %s", config.Host, err)
+			}
+			host := strings.Split(u.Host, ":")[0]
+			addr = fmt.Sprintf("%s:%s", host, DefaultPachdNodePort)
+		}
 	}
+	// if we still can't determine the address, use the reasonable default of
+	// connecting locally
+	addr = fmt.Sprintf("0.0.0.0:%s", DefaultPachdNodePort)
 
 	client, err := NewFromAddress(addr, append(options, cfgOptions...)...)
 	if err != nil {
