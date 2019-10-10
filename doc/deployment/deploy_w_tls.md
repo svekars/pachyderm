@@ -6,7 +6,8 @@ attackers, and all the communication parties are verified by means of a
 trusted certificate and a private key. For many organizations, TLS is a
 security requirement that ensures integrity of their data.
 Before you can enable TLS, you need to obtain a certificate from a trusted
-CA, such as Let's Encrypt, Cloudflare, or other.
+CA, such as Let's Encrypt, Cloudflare, or other. Self-signed certificates
+are supported.
 You can enable TLS during the deployment of your Pachyderm cluster by
 providing a path to your CA certificate and your private key by using the
 `--tls` flag with the `pachctl deploy` command.
